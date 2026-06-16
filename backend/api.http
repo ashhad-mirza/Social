@@ -1,0 +1,80 @@
+
+
+POST http://localhost:9080/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "Rahul",
+  "name": "rahul12",
+  "email": "12R@ghemple.com",
+  "password": "passwrd"
+}
+
+
+
+
+###
+
+
+POST http://localhost:9080/login
+Content-Type: application/json
+
+{"email": "12R@ghemple.com",
+  "password": "passwrd"
+}
+ 
+
+###
+
+
+GET http://localhost:9080/get_user_and_profile 
+Content-Type: application/json
+
+{
+  "token": "6adeb4d8c578be858c4ca822c3db95fa6fe845ae3116e25fbd3cb094bab1ccf9"
+}
+
+###
+
+
+POST http://localhost:9080/update_profile_data 
+Content-Type: application/json
+
+{
+ "token": "7f9e01fd7d241489d9d3402845faf5393f6caeb5881eede54a63d9adf6ed9001",
+ "Bio": "I am Joe Exahme, a software developer",
+ "curentPost": "CTO",
+ "pastWork":[
+  {
+    "company": "Google",
+    "position": "Software Engineer",
+    "startDate": "2015-01-01",
+    "endDate": "2018-12-31"
+  },
+  {
+    "company": "Facebook",
+    "position": "Senior Software Engineer",
+    "startDate": "2019-01-01",
+    "endDate": "2021-12-31"
+  }
+ ],
+ "education":[
+  {
+    "institution": "MIT",
+    "degree": "Bachelor's in Computer Science",
+    "startDate": "2010-09-01",
+    "endDate": "2014-06-30"
+  },
+  {
+    "institution": "Stanford University",
+    "degree": "Master's in Computer Science",
+    "startDate": "2014-09-01",
+    "endDate": "2016-06-30"
+  }
+ ]
+}     
+
+###
+GET  http://localhost:9080/user/get_all_users
+Content-Type: application/json
+
