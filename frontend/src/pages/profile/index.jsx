@@ -3,7 +3,7 @@ import DashboardLayout from "@/layout/DashboardLayout";
 import UserLayout from "@/layout/UserLayout";
 import React, { useEffect, useState } from "react";
 import styles from "./index.module.css";
-import { BASE_URL } from "@/config";
+import { BASE_URL, clientServer } from "@/config";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPosts } from "@/config/redux/action/postAction";
 
@@ -38,12 +38,42 @@ export default function ProfilePage() {
     }
   }, [authState.user, postReducer.posts]);
 
+  const updateProfilePicture = async (file) => {
+    const formData = new FormData();
+    formData.append("profile_picture", file);
+    formData.append("token", localStorage.getItem("token"));
+    const response = await clientServer.post(
+      "/upload_profile_picture",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    dispatch(getAboutUser({ token: localStorage.getItem("token") }));
+  };
+
   return (
     <UserLayout>
       <DashboardLayout>
         {authState.user && userProfile.userId && (
           <div className={styles.container}>
             <div className={styles.backDropContainer}>
+              <label
+                className={styles.backDrop__overlay}
+                htmlFor="profilepictureUpload"
+              >
+                <p>Edit</p>
+              </label>
+              <input
+                onChange={(e) => {
+                  updateProfilePicture(e.target.files[0]);
+                }}
+                hidden
+                type="file"
+                id="profilepictureUpload"
+              />
               <img
                 className={styles.backDrop}
                 src={`${BASE_URL}/${userProfile.userId.profilePicture}`}
@@ -61,8 +91,23 @@ export default function ProfilePage() {
                       gap: "1.2rem",
                     }}
                   >
-                    <h2>{userProfile.userId.name}</h2>
-                    <p>@{userProfile.userId.username}</p>
+                    <input
+                      type="text"
+                      className={styles.nameEdit}
+                      value={userProfile?.userId?.name}
+                      onChange={(e) => {
+                        setUserProfile({
+                          ...userProfile,
+                          userId: {
+                            ...userProfile.userId,
+                            name: e.target.value,
+                          },
+                        });
+                      }}
+                    />
+                    <p style={{ color: "grey" }}>
+                      @{userProfile.userId.username}
+                    </p>
                   </div>
 
                   <div>
@@ -72,23 +117,25 @@ export default function ProfilePage() {
 
                 <div style={{ flex: "0.2" }}>
                   <h3>Recent Activity</h3>
-                  {userPosts.map((post) => {
-                    return (
-                      <div key={post._id} className={styles.postCard}>
-                        <div className={styles.card}>
-                          <div className={styles.card_profileContainer}>
-                            {post.media !== "" ? (
-                              <img src={`${BASE_URL}/${post.media}`} alt="" />
-                            ) : (
-                              <div
-                                style={{ width: "3.4rem", height: "3.4rem" }}
-                              />
-                            )}
+                  <div className={styles.recentActivity}>
+                    {userPosts.map((post) => {
+                      return (
+                        <div key={post._id} className={styles.postCard}>
+                          <div className={styles.card}>
+                            <div className={styles.card_profileContainer}>
+                              {post.media !== "" ? (
+                                <img src={`${BASE_URL}/${post.media}`} alt="" />
+                              ) : (
+                                <div
+                                  style={{ width: "3.4rem", height: "3.4rem" }}
+                                />
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -115,6 +162,9 @@ export default function ProfilePage() {
                 })}
               </div>
             </div>
+            {userProfile?.userId?.name !== authState.user?.userId?.name && (
+              <div className={styles.updateProfileBtn}>Update Profile</div>
+            )}
           </div>
         )}
       </DashboardLayout>
