@@ -54,6 +54,30 @@ export default function ProfilePage() {
     dispatch(getAboutUser({ token: localStorage.getItem("token") }));
   };
 
+  const updateProfileData = async () => {
+    const request = await clientServer.post("/user_update", {
+      token: localStorage.getItem("token"),
+      name: userProfile.userId.name,
+    });
+    const response = await clientServer.post("/update_profile_data", {
+      token: localStorage.getItem("token"),
+      bio: userProfile.bio,
+      currentPost: userProfile.currentPost,
+      pastWork: userProfile.pastWork,
+      education: userProfile.education,
+    });
+    dispatch(getAboutUser({ token: localStorage.getItem("token") }));
+  };
+
+  const hasChanges =
+    userProfile?.userId?.name !== authState.user?.userId?.name ||
+    userProfile?.bio !== authState.user?.bio ||
+    userProfile?.currentPost !== authState.user?.currentPost ||
+    JSON.stringify(userProfile?.pastWork) !==
+      JSON.stringify(authState.user?.pastWork) ||
+    JSON.stringify(userProfile?.education) !==
+      JSON.stringify(authState.user?.education);
+
   return (
     <UserLayout>
       <DashboardLayout>
@@ -111,7 +135,14 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <p>{userProfile.bio}</p>
+                    <textarea
+                      value={userProfile.bio}
+                      onChange={(e) => {
+                        setUserProfile({ ...userProfile, bio: e.target.value });
+                      }}
+                      rows={Math.max(3, Math.ceil(userProfile.bio.length / 80))}
+                      style={{ width: "100%" }}
+                    />
                   </div>
                 </div>
 
@@ -162,8 +193,14 @@ export default function ProfilePage() {
                 })}
               </div>
             </div>
-            {userProfile?.userId?.name !== authState.user?.userId?.name && (
-              <div className={styles.updateProfileBtn}>Update Profile</div>
+
+            {hasChanges && (
+              <div
+                onClick={updateProfileData}
+                className={styles.updateProfileBtn}
+              >
+                Update Profile
+              </div>
             )}
           </div>
         )}
