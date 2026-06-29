@@ -14,9 +14,21 @@ export default function ProfilePage() {
 
   const [userPosts, setUserPosts] = useState([]);
 
+  const [isModalopen, setIsModalOpen] = useState(false);
+
   const postReducer = useSelector((state) => state.postReducer);
 
   const dispatch = useDispatch();
+
+  const [inputData, setInputData] = useState({
+    company: "",
+    position: "",
+    years: "",
+  });
+  const handleWorkInputChange = (e) => {
+    const { name, value } = e.target;
+    setInputData({ ...inputData, [name]: value });
+  };
 
   useEffect(() => {
     dispatch(getAboutUser({ token: localStorage.getItem("token") }));
@@ -71,12 +83,7 @@ export default function ProfilePage() {
 
   const hasChanges =
     userProfile?.userId?.name !== authState.user?.userId?.name ||
-    userProfile?.bio !== authState.user?.bio ||
-    userProfile?.currentPost !== authState.user?.currentPost ||
-    JSON.stringify(userProfile?.pastWork) !==
-      JSON.stringify(authState.user?.pastWork) ||
-    JSON.stringify(userProfile?.education) !==
-      JSON.stringify(authState.user?.education);
+    userProfile?.bio !== authState.user?.bio;
 
   return (
     <UserLayout>
@@ -191,6 +198,12 @@ export default function ProfilePage() {
                     </div>
                   );
                 })}
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className={styles.addWorkButton}
+                >
+                  Add Work
+                </button>
               </div>
             </div>
 
@@ -202,6 +215,54 @@ export default function ProfilePage() {
                 Update Profile
               </div>
             )}
+          </div>
+        )}
+
+        {isModalopen && (
+          <div
+            onClick={() => {
+              setIsModalOpen(false);
+            }}
+            className={styles.commentsContainer}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={styles.allCommentsContainer}
+            >
+              <input
+                className={styles.inputField}
+                type="text"
+                name="company"
+                placeholder="Enter Company"
+                onChange={handleWorkInputChange}
+              />
+              <input
+                className={styles.inputField}
+                type="text"
+                name="position"
+                placeholder="Enter Position"
+                onChange={handleWorkInputChange}
+              />
+              <input
+                className={styles.inputField}
+                type="number"
+                name="years"
+                placeholder="Enter Years"
+                onChange={handleWorkInputChange}
+              />
+              <div
+                onClick={() => {
+                  setUserProfile({
+                    ...userProfile,
+                    pastWork: [...userProfile.pastWork, inputData],
+                  });
+                  setIsModalOpen(false);
+                }}
+                className={styles.updateProfileBtn}
+              >
+                Add Work
+              </div>
+            </div>
           </div>
         )}
       </DashboardLayout>
